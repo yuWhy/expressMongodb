@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div>
+        <form class="initform" method="post" accept-charset="utf-8">
+            <div class="from-group">
+                <label>输入内容</label>
+                <input class="form-control createContent" type="text" name="content" placeholder="enter todo">
+            </div>
+            <div>
+                <button type="button" class="btn btn-info" onclick="createItem()">新增</button>
+            </div>
+            <button type="button" class="btn btn-info" onclick="searchItem()">查询全部</button>
+        </form>
+        <div class="content"></div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script>
+        function createItem() {
+            var obj = {};
+            obj.content = $('.createContent').val();
+            if (obj.content != '') {
+                $.post('http://localhost:3000/create', obj, function(res) {
+                    console.log('新增成功');
+                    searchItem();
+                })
+            } else {
+                alert('不能为空')
+            }
+        }
+
+        function searchItem() {
+            $('.content').empty();
+            $.get('http://localhost:3000/search', function(res) {
+                console.log('searchItem');
+                console.log(res);
+                var sHtml = '';
+                for(var i = 0;i < res.length;i++) {
+                    sHtml += `<div id="lists" class="alert alert-success" click="edit(event)" style="padding: 0;height: 50px;line-height: 50px;padding-left: 10px;">
+                                <p  style="width: 90%;display: inline-block;" id="${res[i]._id}" >${res[i].content}</p>
+                                <p class="pdelete" title="删除该数据" style=" display: inline-block;">
+                                    <button type="button" class="close"><span aria-hidden="true" onclick="deleteItem()"  nodeValue="${res[i]._id}">×</span><span class="sr-only">Close</span></button>
+                                </p>
+                            </div>`;
+                }
+                $('.content').append(sHtml);
+            })
+        }
+
+        function deleteItem() {
+            var id = event.target.attributes[2].nodeValue;
+            console.log('---90');
+            console.log(id);
+            console.log(event);
+            $.get('http://localhost:3000/destory?id=' + id, function(res) {
+                searchItem();
+            })
+        }
+    </script>
+</body>
+</html>
